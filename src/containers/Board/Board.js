@@ -1,42 +1,38 @@
 import React, { useEffect, useState } from 'react';
 import * as Styled from './styled';
 
-import { randomPair } from '../../shared/helpers';
-
-import { onLeft, onRight, onUp, onDown } from '../../shared/gameLogic';
+import { onLeft, onRight, onUp, onDown, initializeGame, checkGameState } from '../../shared/gameLogic';
 
 import Item from '../../components/Board/Item/Item';
+import Modal from '../../components/UI/Modal/Modal';
 
 const Board = props => {
 
     const [items, setItems] = useState([]);
-    const [gameOver, setGameOver] = useState(false);
+    const [gameState, setGameState] = useState({
+        win: false,
+        gameOver: false
+    });
+
     const listOfItems = items.map((el) => (
         <Item key={el.key} itemValue={el.itemValue} />
     ));
 
     // Game initialization
     useEffect(() => {
-        let initialItems = [];
-        const startKeys = randomPair(16);
-        for(let i=0; i<16; i++) {
-            const itemValue = startKeys.includes(i) ? 2 : 0;
-            initialItems.push({
-                key: i,
-                itemValue: itemValue
-            });
-        }
-        setItems(initialItems);
-           
+        resetGame();
     }, []);
 
     useEffect(() => {
-        if(!gameOver) {
+        if(!gameState.gameOver) {
             window.addEventListener('keydown', onKeyDownHandler);
             document.addEventListener('touchstart', onTouchStartHandler, false);
             document.addEventListener('touchmove', onTouchMoveHandler, false);
         }
-        checkGameState();
+        const changeGameState = checkGameState(items);
+        if(changeGameState) {
+            setGameState(changeGameState);
+        }
         return () => {
             document.removeEventListener('touchstart', onTouchStartHandler, false);
             document.removeEventListener('touchmove', onTouchMoveHandler, false);
@@ -45,24 +41,12 @@ const Board = props => {
     }, [items]);
 
     useEffect(() => {
-        if(gameOver) {
+        if(gameState.gameOver) {
             window.removeEventListener('keydown', onKeyDownHandler);
+            document.removeEventListener('touchstart', onTouchStartHandler, false);
+            document.removeEventListener('touchmove', onTouchMoveHandler, false);
         }
-    }, [gameOver]);
-
-    const checkGameState = () => {
-        let maxValue = 2;
-        items.forEach((el, i) => {
-            if (el.itemValue > maxValue) {
-                maxValue = el.itemValue;
-                if(maxValue >= 2048) {
-                    setGameOver(true);
-                    return true;
-                }
-            }
-        });
-        return false;
-    }
+    }, [gameState]);
 
     const onKeyDownHandler = (e) => {
         switch(e.keyCode) {
@@ -72,6 +56,22 @@ const Board = props => {
             case 40: return onDownHandler();
             default: return null;
         }
+    }
+
+    const resetGame = () => {
+        const initialItems = initializeGame();
+        setItems(initialItems);
+        setGameState({
+            win: false,
+            gameOver: false
+        });
+    }
+
+    const closeModal = () => {
+        setGameState({
+            ...gameState,
+            gameOver: false
+        })
     }
 
     let initialX = null;
@@ -136,6 +136,11 @@ const Board = props => {
         setItems(updatedItems);
     }
 
+    let modal = null;
+    if(gameState.gameOver) {
+        modal = <Modal win={gameState.win} onResetGame={resetGame} onCloseModal={closeModal} />;
+    }
+
     return (
         <>
             <Styled.Heading>2048</Styled.Heading>
@@ -143,6 +148,7 @@ const Board = props => {
                 { listOfItems }
             </Styled.Container>
             <Styled.Instructions>Use arrow keys or swipe to move the blocks.</Styled.Instructions>
+            { modal }
         </>
     )
 }

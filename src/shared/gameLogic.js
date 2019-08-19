@@ -1,4 +1,4 @@
-import { randomFromRange } from './helpers';
+import { randomFromRange, randomPair } from './helpers';
 
 const addRandomItem = (itemsArray) => {
     let emptyIndexes = [];
@@ -15,8 +15,13 @@ const addRandomItem = (itemsArray) => {
     return itemsArray;
 }
 
-export const onLeft = (items) => {
-    let updatedItems = [...items];
+export const onLeft = (items, checkMoves = false) => {
+    let updatedItems = [];
+    for(let i = 0; i < 16; i++) {
+        updatedItems[i] = {
+            ...items[i]
+        }
+    }
     let itemsChanged = false;
     let indexesToMoveLeft = [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15];
     // Check all the elements which could be moved left. Start from the left.
@@ -78,14 +83,25 @@ export const onLeft = (items) => {
             }
         }
     });
+
+    if(checkMoves) {
+        return itemsChanged;
+    }
+
     if(itemsChanged) {
         updatedItems = addRandomItem(updatedItems);
     }
+    
     return updatedItems;
 }
 
-export const onRight = (items) => {
-    let updatedItems = [...items];
+export const onRight = (items, checkMoves = false) => {
+    let updatedItems = [];
+    for(let i = 0; i < 16; i++) {
+        updatedItems[i] = {
+            ...items[i]
+        }
+    }
     let itemsChanged = false;
     let indexesToMoveRight = [14, 13, 12, 10, 9, 8, 6, 5, 4, 2, 1, 0];
     // Check all the elements which could be moved right. Start from the right.
@@ -155,14 +171,25 @@ export const onRight = (items) => {
             }
         }
     });
+
+    if(checkMoves) {
+        return itemsChanged;
+    }
+
     if(itemsChanged) {
         updatedItems = addRandomItem(updatedItems);
     }
+    
     return updatedItems;
 }
 
-export const onUp = (items) => {
-    let updatedItems = [...items];
+export const onUp = (items, checkMoves = false) => {
+    let updatedItems = [];
+    for(let i = 0; i < 16; i++) {
+        updatedItems[i] = {
+            ...items[i]
+        }
+    }
     let itemsChanged = false;
     // Check all the elements which could be moved up. Start from the top and move to the end.
     for(let i=4; i<16; i++) {
@@ -223,14 +250,25 @@ export const onUp = (items) => {
             }
         }
     }
+
+    if(checkMoves) {
+        return itemsChanged;
+    }
+
     if(itemsChanged) {
         updatedItems = addRandomItem(updatedItems);
-        }
+    }
+    
     return updatedItems;
 }
 
-export const onDown = (items) => {
-    let updatedItems = [...items];
+export const onDown = (items, checkMoves = false) => {
+    let updatedItems = [];
+    for(let i = 0; i < 16; i++) {
+        updatedItems[i] = {
+            ...items[i]
+        }
+    }
     let itemsChanged = false;
     // Check all the elements which could be moved down. Start from the bottom and move to the beginning.
     for(let i=11; i>=0; i--) {
@@ -291,8 +329,64 @@ export const onDown = (items) => {
             }
         }
     }
+
+    if(checkMoves) {
+        return itemsChanged;
+    }
+
     if(itemsChanged) {
         updatedItems = addRandomItem(updatedItems);
     }
+    
     return updatedItems;
+}
+
+export const checkGameState = (items) => {
+    let gameState = false;
+    if(items.length) {
+        let maxValue = 2;
+        let copiedItems = [];
+        for(let i = 0; i < 16; i++) {
+            copiedItems[i] = {
+                ...items[i]
+            }
+        }
+        copiedItems.forEach((el, i) => {
+            if (el.itemValue > maxValue) {
+                maxValue = el.itemValue;
+                if(maxValue >= 8) {
+                    gameState = {
+                        win: true,
+                        gameOver: true
+                    };
+                    return gameState;
+                }
+            }
+        });
+        let movePossible = false;
+        if(onLeft(copiedItems, true) || onRight(copiedItems, true) || onUp(copiedItems, true) || onDown(copiedItems, true)) {
+            movePossible = true;
+        }
+        if(!movePossible) {
+            gameState = {
+                win: false,
+                gameOver: true
+            };
+            return gameState;
+        }
+    }
+    return gameState;
+}
+
+export const initializeGame = () => {
+    let initialItems = [];
+    const startKeys = randomPair(16);
+    for(let i=0; i<16; i++) {
+        const itemValue = startKeys.includes(i) ? 2 : 0;
+        initialItems.push({
+            key: i,
+            itemValue: itemValue
+        });
+    }
+    return initialItems;
 }
