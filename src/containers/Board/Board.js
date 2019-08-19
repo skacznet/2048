@@ -24,31 +24,27 @@ const Board = props => {
     }, []);
 
     useEffect(() => {
-        if(!gameState.gameOver) {
-            window.addEventListener('keydown', onKeyDownHandler);
-            document.addEventListener('touchstart', onTouchStartHandler, false);
-            document.addEventListener('touchmove', onTouchMoveHandler, false);
-        }
+        document.addEventListener('keydown', onKeyDownHandler);
+        document.addEventListener('touchstart', onTouchStartHandler, false);
+        document.addEventListener('touchmove', onTouchMoveHandler, false);
         const changeGameState = checkGameState(items);
         if(changeGameState) {
+            if(changeGameState.gameOver === true) {
+                document.removeEventListener('keydown', onKeyDownHandler);
+                document.removeEventListener('touchstart', onTouchStartHandler, false);
+                document.removeEventListener('touchmove', onTouchMoveHandler, false);
+            }
             setGameState(changeGameState);
         }
         return () => {
+            document.removeEventListener('keydown', onKeyDownHandler);
             document.removeEventListener('touchstart', onTouchStartHandler, false);
             document.removeEventListener('touchmove', onTouchMoveHandler, false);
-            window.removeEventListener('keydown', onKeyDownHandler);
         };   
     }, [items]);
 
-    useEffect(() => {
-        if(gameState.gameOver) {
-            window.removeEventListener('keydown', onKeyDownHandler);
-            document.removeEventListener('touchstart', onTouchStartHandler, false);
-            document.removeEventListener('touchmove', onTouchMoveHandler, false);
-        }
-    }, [gameState]);
-
     const onKeyDownHandler = (e) => {
+        console.log(e);
         switch(e.keyCode) {
             case 37: return onLeftHandler();
             case 38: return onUpHandler();

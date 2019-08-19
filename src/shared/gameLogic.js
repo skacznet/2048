@@ -354,7 +354,7 @@ export const checkGameState = (items) => {
         copiedItems.forEach((el, i) => {
             if (el.itemValue > maxValue) {
                 maxValue = el.itemValue;
-                if(maxValue >= 8) {
+                if(maxValue >= 2048) {
                     gameState = {
                         win: true,
                         gameOver: true
