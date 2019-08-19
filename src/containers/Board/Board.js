@@ -44,7 +44,6 @@ const Board = props => {
     }, [items]);
 
     const onKeyDownHandler = (e) => {
-        console.log(e);
         switch(e.keyCode) {
             case 37: return onLeftHandler();
             case 38: return onUpHandler();
@@ -52,22 +51,6 @@ const Board = props => {
             case 40: return onDownHandler();
             default: return null;
         }
-    }
-
-    const resetGame = () => {
-        const initialItems = initializeGame();
-        setItems(initialItems);
-        setGameState({
-            win: false,
-            gameOver: false
-        });
-    }
-
-    const closeModal = () => {
-        setGameState({
-            ...gameState,
-            gameOver: false
-        })
     }
 
     let initialX = null;
@@ -130,6 +113,22 @@ const Board = props => {
     const onDownHandler = () => {
         const updatedItems = onDown(items);
         setItems(updatedItems);
+    }
+
+    const resetGame = () => {
+        const initialItems = initializeGame();
+        setItems(initialItems);
+        setGameState({
+            win: false,
+            gameOver: false
+        });
+    }
+
+    const closeModal = () => {
+        setGameState({
+            ...gameState,
+            gameOver: false
+        })
     }
 
     let modal = null;

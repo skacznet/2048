@@ -382,7 +382,7 @@ export const initializeGame = () => {
     let initialItems = [];
     const startKeys = randomPair(16);
     for(let i=0; i<16; i++) {
-        const itemValue = startKeys.includes(i) ? 2 : 0;
+        let itemValue = startKeys.includes(i) ? 2 : 0;
         initialItems.push({
             key: i,
             itemValue: itemValue
